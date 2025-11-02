@@ -1,0 +1,48 @@
+using UnityEngine;
+
+public class BallShooter : MonoBehaviour
+{
+    public Transform muzzlePoint;   // 👈 Assign the muzzle of your gun here
+    public float shootForce = 700f;
+    public float ballLifetime = 20f;
+    public float ballSize = 0.5f;
+
+    void Update()
+    {
+        if (Input.GetButtonDown("Fire1"))
+        {
+            ShootBall();
+        }
+    }
+
+    void ShootBall()
+    {
+        // Create a visible ball
+        GameObject ball = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        ball.transform.position = muzzlePoint.position;
+        ball.transform.rotation = muzzlePoint.rotation;
+        ball.transform.localScale = Vector3.one * ballSize;
+
+        // Add physics
+        Rigidbody rb = ball.AddComponent<Rigidbody>();
+        rb.mass = 1f;
+        rb.AddForce(muzzlePoint.forward * shootForce, ForceMode.Impulse);
+
+        // Make it visible
+        Renderer renderer = ball.GetComponent<Renderer>();
+        if (renderer != null)
+            renderer.material.color = Color.red;
+
+        // Add a trail
+        TrailRenderer trail = ball.AddComponent<TrailRenderer>();
+        trail.time = 0.5f;
+        trail.startWidth = 0.2f;
+        trail.endWidth = 0f;
+        trail.material = new Material(Shader.Find("Sprites/Default"));
+        trail.startColor = Color.red;
+        trail.endColor = new Color(1, 0, 0, 0);
+
+        // Destroy after lifetime
+        Destroy(ball, ballLifetime);
+    }
+}
